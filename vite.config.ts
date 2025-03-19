@@ -13,6 +13,8 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ""), // Removes "/api" prefix
       },
-    }
+    },
+    strictPort: true,
+    port: 4173
   }
 })
