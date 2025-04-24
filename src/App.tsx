@@ -35,7 +35,8 @@ export default function App() {
             new Configuration({
                 headers: {
                     Authorization: `Bearer ${getAccessTokenSilently().then(value => value)}`
-                }
+                },
+                basePath: 'https://api.jstl.ink.paulus.rocks'
             }));
 
         return (
