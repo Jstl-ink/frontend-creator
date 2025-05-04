@@ -12,7 +12,7 @@ createRoot(document.getElementById('root')!).render(
             domain="dev-wytn16b0qo3jiulg.us.auth0.com"
             clientId="6mfsMp7uCCcpGVdRgjk6nhjcSQyNbnf6"
             authorizationParams={{
-                redirect_uri: window.location.origin,
+                redirect_uri: window.location + "/creator",
             }}
             cacheLocation="localstorage"
             useRefreshTokens={true}
