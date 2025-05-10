@@ -24,60 +24,53 @@ import {
 /**
  * 
  * @export
- * @interface Page
+ * @interface ImmutablePage
  */
-export interface Page {
+export interface ImmutablePage {
     /**
      * username user page
      * @type {string}
-     * @memberof Page
+     * @memberof ImmutablePage
      */
     name?: string;
     /**
      * biography for user page
      * @type {string}
-     * @memberof Page
+     * @memberof ImmutablePage
      */
     bio?: string;
     /**
      * url for image
      * @type {string}
-     * @memberof Page
+     * @memberof ImmutablePage
      */
     img?: string;
     /**
      * links for social media profiles
      * @type {Array<Link>}
-     * @memberof Page
+     * @memberof ImmutablePage
      */
     socialLinks?: Array<Link>;
     /**
      * custom definable links
      * @type {Array<Link>}
-     * @memberof Page
+     * @memberof ImmutablePage
      */
     links?: Array<Link>;
-    /**
-     * ID of page
-     * @type {string}
-     * @memberof Page
-     */
-    id: string;
 }
 
 /**
- * Check if a given object implements the Page interface.
+ * Check if a given object implements the ImmutablePage interface.
  */
-export function instanceOfPage(value: object): value is Page {
-    if (!('id' in value) || value['id'] === undefined) return false;
+export function instanceOfImmutablePage(value: object): value is ImmutablePage {
     return true;
 }
 
-export function PageFromJSON(json: any): Page {
-    return PageFromJSONTyped(json, false);
+export function ImmutablePageFromJSON(json: any): ImmutablePage {
+    return ImmutablePageFromJSONTyped(json, false);
 }
 
-export function PageFromJSONTyped(json: any, ignoreDiscriminator: boolean): Page {
+export function ImmutablePageFromJSONTyped(json: any, ignoreDiscriminator: boolean): ImmutablePage {
     if (json == null) {
         return json;
     }
@@ -88,15 +81,14 @@ export function PageFromJSONTyped(json: any, ignoreDiscriminator: boolean): Page
         'img': json['img'] == null ? undefined : json['img'],
         'socialLinks': json['socialLinks'] == null ? undefined : ((json['socialLinks'] as Array<any>).map(LinkFromJSON)),
         'links': json['links'] == null ? undefined : ((json['links'] as Array<any>).map(LinkFromJSON)),
-        'id': json['id'],
     };
 }
 
-export function PageToJSON(json: any): Page {
-    return PageToJSONTyped(json, false);
+export function ImmutablePageToJSON(json: any): ImmutablePage {
+    return ImmutablePageToJSONTyped(json, false);
 }
 
-export function PageToJSONTyped(value?: Page | null, ignoreDiscriminator: boolean = false): any {
+export function ImmutablePageToJSONTyped(value?: ImmutablePage | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -108,7 +100,6 @@ export function PageToJSONTyped(value?: Page | null, ignoreDiscriminator: boolea
         'img': value['img'],
         'socialLinks': value['socialLinks'] == null ? undefined : ((value['socialLinks'] as Array<any>).map(LinkToJSON)),
         'links': value['links'] == null ? undefined : ((value['links'] as Array<any>).map(LinkToJSON)),
-        'id': value['id'],
     };
 }
 

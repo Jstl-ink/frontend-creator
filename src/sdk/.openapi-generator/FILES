@@ -1,9 +1,11 @@
+.openapi-generator-ignore
 apis/CreatorApi.ts
 apis/PageApi.ts
 apis/index.ts
 index.ts
-models/CreatePageRequest.ts
+models/ImmutablePage.ts
 models/Link.ts
 models/Page.ts
+models/PageIdRequestBody.ts
 models/index.ts
 runtime.ts

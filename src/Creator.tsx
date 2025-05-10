@@ -1,32 +1,30 @@
-import { useEffect, useState } from "react";
-import { Configuration, CreatorApi, Link, Page as SDKPage, PageApi } from "./sdk";
-import { User } from "@auth0/auth0-react";
+import {useEffect, useState} from "react";
+import {Configuration, CreatorApi, Link, Page, PageApi} from "./sdk";
+import {User} from "@auth0/auth0-react";
 import UnsplashService from "./services/UnsplashService";
 
-type Page = SDKPage & { profileImageUrl?: string };
-
 interface CreatorProps {
-    authenticatedApi: CreatorApi;
-    user: User;
+    authenticatedApi: CreatorApi,
+    user: User,
+    userId: string
 }
 
-export default function Creator({ authenticatedApi, user }: CreatorProps) {
+export default function Creator({authenticatedApi, user, userId}: CreatorProps) {
     const [page, setPage] = useState<Page>();
     const [profileImages, setProfileImages] = useState<any[]>([]);
     const [selectedImage, setSelectedImage] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
-    const [customLinks, setCustomLinks] = useState<Link[]>([]);
+    const [customLinks, setCustomLinks] = useState<Link[]>([{} as Link]);
     const [isImageMenuOpen, setIsImageMenuOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [searchError, setSearchError] = useState("");
 
     useEffect(() => {
-        const pageApi = new PageApi();
-        pageApi.getPageById({ pageId: user?.email }).then(value => {
+        const pageApi = new PageApi(new Configuration({basePath: 'https://api.jstl.ink.paulus.rocks'}))
+        pageApi.getPageById({pageId: userId}).then(value => {
             setPage(value);
-            const socials = ["instagram", "twitter", "threads", "facebook", "mail"];
-            const customs = value.links?.filter(link => !socials.includes(link.name)) || [];
-            setCustomLinks([...customs, { name: "", link: "", id: 0 }]);
+            console.log(value)
+            // const socials = ["instagram", "twitter", "threads", "facebook", "mail"];
         });
     }, [user]);
 
@@ -56,20 +54,18 @@ export default function Creator({ authenticatedApi, user }: CreatorProps) {
         }
     };
 
-    const createLink = (link: Link) =>
-        authenticatedApi.createLinkByPageId({ pageId: page.id, body: link });
-
-    const updateSocialLink = (link: Link) =>
-        authenticatedApi.updateSocialLinkByPageId({ pageId: page.id, body: link });
-
     const updatePage = (updatedPage: Page) => {
         setPage(updatedPage);
-        authenticatedApi.updatePageByPageId({ pageId: updatedPage.id, body: updatedPage });
+        console.log(authenticatedApi);
+        authenticatedApi.updatePageDetailsByPageId({
+            pageId: userId,
+            body: updatedPage
+        }).then(r => console.log(r)).catch(e => console.log(e));
     };
 
     const handleImageSelect = (imgUrl: string) => {
         setSelectedImage(imgUrl);
-        updatePage({ ...page, profileImageUrl: imgUrl });
+        updatePage({...page, img: imgUrl});
         setIsImageMenuOpen(false);
     };
 
@@ -80,9 +76,9 @@ export default function Creator({ authenticatedApi, user }: CreatorProps) {
             {/* Profile Image Selection */}
             <div className="mb-8">
                 <div className="flex items-center gap-4 mb-4">
-                    {page?.profileImageUrl ? (
+                    {page?.img ? (
                         <img
-                            src={page.profileImageUrl}
+                            src={page.img}
                             alt="Profile"
                             className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
                         />
@@ -95,7 +91,7 @@ export default function Creator({ authenticatedApi, user }: CreatorProps) {
                         onClick={() => setIsImageMenuOpen(!isImageMenuOpen)}
                         className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition"
                     >
-                        {page?.profileImageUrl ? "Change Photo" : "Select Photo"}
+                        {page?.img ? "Change Photo" : "Select Photo"}
                     </button>
                 </div>
 
@@ -125,12 +121,14 @@ export default function Creator({ authenticatedApi, user }: CreatorProps) {
 
                         {isLoading ? (
                             <div className="flex justify-center py-8">
-                                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                                <div
+                                    className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
                             </div>
                         ) : (
                             <>
                                 {profileImages.length > 0 ? (
-                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 max-h-96 overflow-y-auto p-2">
+                                    <div
+                                        className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 max-h-96 overflow-y-auto p-2">
                                         {profileImages.map((img) => (
                                             <div
                                                 key={img.id}
@@ -162,7 +160,7 @@ export default function Creator({ authenticatedApi, user }: CreatorProps) {
 
             {/* Profile Information */}
             <div className="space-y-6">
-                {["name", "bio", "description"].map((field) => (
+                {["name", "bio"].map((field) => (
                     <div key={field}>
                         <label className="block text-sm font-medium text-gray-700 capitalize mb-1">
                             {field}
@@ -170,7 +168,11 @@ export default function Creator({ authenticatedApi, user }: CreatorProps) {
                         <input
                             className="w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
                             value={page?.[field] || ""}
-                            onChange={(e) => setPage({ ...page, [field]: e.target.value })}
+                            onChange={(e) => {
+                                setPage({...page, [field]: e.target.value})
+                                console.log(page, e.target.value);
+
+                            }}
                             onBlur={() => updatePage(page)}
                         />
                     </div>
@@ -181,9 +183,8 @@ export default function Creator({ authenticatedApi, user }: CreatorProps) {
             <div className="mt-8">
                 <h2 className="text-lg font-semibold mb-4">Social Links</h2>
                 <div className="space-y-4">
-                    {["instagram", "twitter", "threads", "facebook", "mail"].map((name) => {
-                        const link = page?.links?.find(link => link.name === name) || { name, link: "" };
-                        // @ts-ignore
+                    {["instagram", "twitter", "threads", "facebook"].map((name) => {
+                        const link = page?.socialLinks?.find(link => link.name === name) || {name, link: ""};
                         return (
                             <div key={name}>
                                 <label className="block text-sm font-medium text-gray-700 capitalize mb-1">
@@ -192,10 +193,14 @@ export default function Creator({ authenticatedApi, user }: CreatorProps) {
                                 <input
                                     className="w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
                                     defaultValue={link.link}
-                                    onBlur={e => updateSocialLink({
-                                        name, link: e.target.value,
-                                        id: 0
-                                    })}
+                                    onBlur={e => updatePage(
+                                        {...page,
+                                            socialLinks: [...page?.socialLinks, {
+                                                name,
+                                                link: `https://${name}.com/${e.target.value}`
+                                            }]
+                                        }
+                                    )}
                                 />
                             </div>
                         );
@@ -221,7 +226,7 @@ export default function Creator({ authenticatedApi, user }: CreatorProps) {
                                         setCustomLinks(updated);
                                     }}
                                     onBlur={() => {
-                                        if (link.name && link.link) createLink(link);
+                                        // if (link.name && link.link) createLink(link);
                                     }}
                                 />
                             </div>
@@ -237,9 +242,13 @@ export default function Creator({ authenticatedApi, user }: CreatorProps) {
                                         setCustomLinks(updated);
                                     }}
                                     onBlur={() => {
-                                        if (link.name && link.link) createLink(link);
+                                        if (link.name && link.link) {
+                                            updatePage({...page,
+                                                links: [...page?.links, link]
+                                            });
+                                        }
                                         if (index === customLinks.length - 1 && link.name && link.link) {
-                                            setCustomLinks([...customLinks, { name: "", link: "", id: 0 }]);
+                                            setCustomLinks([...customLinks, {name: "", link: ""}]);
                                         }
                                     }}
                                 />

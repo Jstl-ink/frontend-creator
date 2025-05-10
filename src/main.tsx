@@ -13,6 +13,7 @@ createRoot(document.getElementById('root')!).render(
             clientId="6mfsMp7uCCcpGVdRgjk6nhjcSQyNbnf6"
             authorizationParams={{
                 redirect_uri: window.location.origin + "/creator",
+                audience: "https://api.jstl.ink.paulus.rocks/",
             }}
             cacheLocation="localstorage"
             useRefreshTokens={true}
