@@ -22,11 +22,14 @@ export default function App() {
     const [accessToken, setAccessToken] = useState("");
 
     useEffect(() => {
-        getIdTokenClaims().then(value => {
-            setUserId(value.sub.split("|")[1])
-            setSignup(value.signup)
-        });
-        getAccessTokenSilently().then(value => setAccessToken(value)).catch(error => console.log("error getting token",error));
+        if(isAuthenticated){
+            getIdTokenClaims().then(value => {
+                setUserId(value.sub.split("|")[1])
+                setSignup(value.signup)
+            });
+            getAccessTokenSilently().then(value => setAccessToken(value)).catch(error => console.log("error getting token",error));
+        }
+
         console.log(userId, accessToken);
     }, [isAuthenticated])
 
@@ -38,7 +41,6 @@ export default function App() {
     }
 
     if (isAuthenticated) {
-        const pageApi = new PageApi(new Configuration({basePath: 'https://api.jstl.ink.paulus.rocks'}))
         const creatorApi = new CreatorApi(
             new Configuration({
                 headers: {
@@ -49,8 +51,7 @@ export default function App() {
 
         return (
             signup ?
-                <Signup user={user} pageApi={pageApi} userId={userId} authenticatedApi={creatorApi}
-                        setSignup={setSignup}/> :
+                <Signup userId={userId} authenticatedApi={creatorApi} setSignup={setSignup}/> :
                 <div className="flex flex-col">
                     <nav>
                         <button onClick={() => logout({logoutParams: {returnTo: window.location.origin}})}>

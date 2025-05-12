@@ -20,8 +20,7 @@ export default function Creator({authenticatedApi, user, userId}: CreatorProps) 
     const [searchError, setSearchError] = useState("");
 
     useEffect(() => {
-        const pageApi = new PageApi(new Configuration({basePath: 'https://api.jstl.ink.paulus.rocks'}))
-        pageApi.getPageById({pageId: userId}).then(value => {
+        authenticatedApi.getCreatorPageById({pageId: userId}).then(value => {
             setPage(value);
             console.log(value)
             // const socials = ["instagram", "twitter", "threads", "facebook", "mail"];

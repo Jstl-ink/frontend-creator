@@ -24,67 +24,53 @@ import {
 /**
  * 
  * @export
- * @interface Page
+ * @interface MutablePage
  */
-export interface Page {
+export interface MutablePage {
     /**
      * username user page
      * @type {string}
-     * @memberof Page
+     * @memberof MutablePage
      */
     name?: string;
     /**
      * biography for user page
      * @type {string}
-     * @memberof Page
+     * @memberof MutablePage
      */
     bio?: string;
     /**
      * url for image
      * @type {string}
-     * @memberof Page
+     * @memberof MutablePage
      */
     img?: string;
     /**
      * links for social media profiles
      * @type {Array<Link>}
-     * @memberof Page
+     * @memberof MutablePage
      */
     socialLinks?: Array<Link>;
     /**
      * custom definable links
      * @type {Array<Link>}
-     * @memberof Page
+     * @memberof MutablePage
      */
     links?: Array<Link>;
-    /**
-     * ID of page
-     * @type {string}
-     * @memberof Page
-     */
-    id: string;
-    /**
-     * used as pathname in the url
-     * @type {string}
-     * @memberof Page
-     */
-    handle: string;
 }
 
 /**
- * Check if a given object implements the Page interface.
+ * Check if a given object implements the MutablePage interface.
  */
-export function instanceOfPage(value: object): value is Page {
-    if (!('id' in value) || value['id'] === undefined) return false;
-    if (!('handle' in value) || value['handle'] === undefined) return false;
+export function instanceOfMutablePage(value: object): value is MutablePage {
     return true;
 }
 
-export function PageFromJSON(json: any): Page {
-    return PageFromJSONTyped(json, false);
+export function MutablePageFromJSON(json: any): MutablePage {
+    return MutablePageFromJSONTyped(json, false);
 }
 
-export function PageFromJSONTyped(json: any, ignoreDiscriminator: boolean): Page {
+export function MutablePageFromJSONTyped(json: any, ignoreDiscriminator: boolean): MutablePage {
     if (json == null) {
         return json;
     }
@@ -95,16 +81,14 @@ export function PageFromJSONTyped(json: any, ignoreDiscriminator: boolean): Page
         'img': json['img'] == null ? undefined : json['img'],
         'socialLinks': json['socialLinks'] == null ? undefined : ((json['socialLinks'] as Array<any>).map(LinkFromJSON)),
         'links': json['links'] == null ? undefined : ((json['links'] as Array<any>).map(LinkFromJSON)),
-        'id': json['id'],
-        'handle': json['handle'],
     };
 }
 
-export function PageToJSON(json: any): Page {
-    return PageToJSONTyped(json, false);
+export function MutablePageToJSON(json: any): MutablePage {
+    return MutablePageToJSONTyped(json, false);
 }
 
-export function PageToJSONTyped(value?: Page | null, ignoreDiscriminator: boolean = false): any {
+export function MutablePageToJSONTyped(value?: MutablePage | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -116,8 +100,6 @@ export function PageToJSONTyped(value?: Page | null, ignoreDiscriminator: boolea
         'img': value['img'],
         'socialLinks': value['socialLinks'] == null ? undefined : ((value['socialLinks'] as Array<any>).map(LinkToJSON)),
         'links': value['links'] == null ? undefined : ((value['links'] as Array<any>).map(LinkToJSON)),
-        'id': value['id'],
-        'handle': value['handle'],
     };
 }
 
