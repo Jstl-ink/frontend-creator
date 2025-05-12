@@ -19,12 +19,18 @@ export default function App() {
         useAuth0();
     const [signup, setSignup] = useState(true);
     const [userId, setUserId] = useState("");
+    const [accessToken, setAccessToken] = useState("");
 
     useEffect(() => {
-        getIdTokenClaims().then(value => {
-            setUserId(value.sub.split("|")[1])
-            setSignup(value.signup)
-        });
+        if(isAuthenticated){
+            getIdTokenClaims().then(value => {
+                setUserId(value.sub.split("|")[1])
+                setSignup(value.signup)
+            });
+            getAccessTokenSilently().then(value => setAccessToken(value)).catch(error => console.log("error getting token",error));
+        }
+
+        console.log(userId, accessToken);
     }, [isAuthenticated])
 
     if (isLoading) {
@@ -35,26 +41,24 @@ export default function App() {
     }
 
     if (isAuthenticated) {
-        const pageApi = new PageApi(new Configuration({basePath: 'https://api.jstl.ink.paulus.rocks'}))
         const creatorApi = new CreatorApi(
             new Configuration({
                 headers: {
-                    Authorization: `Bearer ${getAccessTokenSilently().then(value => value)}`
+                    Authorization: 'Bearer '+accessToken
                 },
                 basePath: 'https://api.jstl.ink.paulus.rocks'
             }));
 
         return (
             signup ?
-                <Signup user={user} pageApi={pageApi} userId={userId} authenticatedApi={creatorApi}
-                        setSignup={setSignup}/> :
+                <Signup userId={userId} authenticatedApi={creatorApi} setSignup={setSignup}/> :
                 <div className="flex flex-col">
                     <nav>
                         <button onClick={() => logout({logoutParams: {returnTo: window.location.origin}})}>
                             Log out
                         </button>
                     </nav>
-                    <Creator authenticatedApi={creatorApi} user={user}/>
+                    <Creator authenticatedApi={creatorApi} user={user} userId={userId}/>
                 </div>
         );
     } else {

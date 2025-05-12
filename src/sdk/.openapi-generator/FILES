@@ -2,8 +2,9 @@ apis/CreatorApi.ts
 apis/PageApi.ts
 apis/index.ts
 index.ts
-models/CreatePageRequest.ts
 models/Link.ts
+models/MutablePage.ts
 models/Page.ts
+models/SignUp.ts
 models/index.ts
 runtime.ts
