@@ -3,8 +3,7 @@ import {createRoot} from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import {Auth0Provider} from '@auth0/auth0-react';
-import {MantineProvider} from '@mantine/core';
-
+import Header from "./Header.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
@@ -18,9 +17,8 @@ createRoot(document.getElementById('root')!).render(
             cacheLocation="localstorage"
             useRefreshTokens={true}
         >
-            <MantineProvider>
-                <App/>
-            </MantineProvider>
+            <Header/>
+            <App/>
         </Auth0Provider>
     </StrictMode>,
 )

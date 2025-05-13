@@ -88,84 +88,82 @@ export default function Creator({authenticatedApi, user, userId}: CreatorProps) 
                     )}
                     <button
                         onClick={() => setIsImageMenuOpen(!isImageMenuOpen)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition"
+                        className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg transition"
                     >
                         {page?.img ? "Change Photo" : "Select Photo"}
                     </button>
                 </div>
 
-                {isImageMenuOpen && (
-                    <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
-                        <div className="flex items-center gap-2 mb-4">
-                            <input
-                                type="text"
-                                className="border p-2 rounded-lg flex-grow"
-                                placeholder="Search Unsplash photos..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                onKeyDown={(e) => e.key === "Enter" && loadImages(searchTerm)}
-                            />
-                            <button
-                                onClick={() => loadImages(searchTerm)}
-                                className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-                                disabled={isLoading}
-                            >
-                                {isLoading ? "Searching..." : "Search"}
-                            </button>
-                        </div>
-
-                        {searchError && (
-                            <div className="text-red-500 text-sm mb-4">{searchError}</div>
-                        )}
-
-                        {isLoading ? (
-                            <div className="flex justify-center py-8">
-                                <div
-                                    className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-                            </div>
-                        ) : (
-                            <>
-                                {profileImages.length > 0 ? (
-                                    <div
-                                        className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 max-h-96 overflow-y-auto p-2">
-                                        {profileImages.map((img) => (
-                                            <div
-                                                key={img.id}
-                                                className={`relative cursor-pointer rounded-lg overflow-hidden aspect-square ${
-                                                    selectedImage === img.urls.regular ? "ring-2 ring-blue-500" : ""
-                                                }`}
-                                                onClick={() => handleImageSelect(img.urls.regular)}
-                                            >
-                                                <img
-                                                    src={img.urls.thumb}
-                                                    alt={img.alt_description || "Unsplash photo"}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    !searchError && (
-                                        <div className="text-center py-8 text-gray-500">
-                                            No images available
-                                        </div>
-                                    )
-                                )}
-                            </>
-                        )}
+                <dialog open={isImageMenuOpen} className="translate-x-[10%] backdrop:backdrop-blur-md p-4 rounded-lg max-w-[80%]">
+                    <div className="flex items-center gap-2 mb-4">
+                        <input
+                            type="text"
+                            className="border p-2 rounded-lg flex-grow"
+                            placeholder="Search Unsplash photos..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && loadImages(searchTerm)}
+                        />
+                        <button
+                            onClick={() => loadImages(searchTerm)}
+                            className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? "Searching..." : "Search"}
+                        </button>
                     </div>
-                )}
+
+                    {searchError && (
+                        <div className="text-red-500 text-sm mb-4">{searchError}</div>
+                    )}
+
+                    {isLoading ? (
+                        <div className="flex justify-center py-8">
+                            <div
+                                className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                        </div>
+                    ) : (
+                        <>
+                            {profileImages.length > 0 ? (
+                                <div
+                                    className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 max-h-96 overflow-y-auto p-2">
+                                    {profileImages.map((img) => (
+                                        <div
+                                            key={img.id}
+                                            className={`relative cursor-pointer rounded-lg overflow-hidden aspect-square ${
+                                                selectedImage === img.urls.regular ? "ring-2 ring-blue-500" : ""
+                                            }`}
+                                            onClick={() => handleImageSelect(img.urls.regular)}
+                                        >
+                                            <img
+                                                src={img.urls.thumb}
+                                                alt={img.alt_description || "Unsplash photo"}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                !searchError && (
+                                    <div className="text-center py-8 text-gray-500">
+                                        No images available
+                                    </div>
+                                )
+                            )}
+                        </>
+                    )}
+                </dialog>
             </div>
 
             {/* Profile Information */}
             <div className="space-y-6">
                 {["name", "bio"].map((field) => (
                     <div key={field}>
-                        <label className="block text-sm font-medium text-gray-700 capitalize mb-1">
+                        <label className="block text-sm font-medium capitalize mb-1">
                             {field}
                         </label>
                         <input
-                            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full border text-white border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
                             value={page?.[field] || ""}
                             onChange={(e) => {
                                 setPage({...page, [field]: e.target.value})
@@ -186,14 +184,15 @@ export default function Creator({authenticatedApi, user, userId}: CreatorProps) 
                         const link = page?.socialLinks?.find(link => link.name === name) || {name, link: ""};
                         return (
                             <div key={name}>
-                                <label className="block text-sm font-medium text-gray-700 capitalize mb-1">
+                                <label className="block text-sm font-medium capitalize mb-1">
                                     {name}
                                 </label>
                                 <input
                                     className="w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
                                     defaultValue={link.link}
                                     onBlur={e => updatePage(
-                                        {...page,
+                                        {
+                                            ...page,
                                             socialLinks: [...page?.socialLinks, {
                                                 name,
                                                 link: `https://${name}.com/${e.target.value}`
@@ -214,7 +213,7 @@ export default function Creator({authenticatedApi, user, userId}: CreatorProps) 
                     {customLinks.map((link, index) => (
                         <div key={index} className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                                <label className="block text-sm font-medium mb-1">Name</label>
                                 <input
                                     className="w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
                                     placeholder="Link name"
@@ -230,7 +229,7 @@ export default function Creator({authenticatedApi, user, userId}: CreatorProps) 
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">URL</label>
+                                <label className="block text-sm font-medium mb-1">URL</label>
                                 <input
                                     className="w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
                                     placeholder="https://example.com"
@@ -242,7 +241,8 @@ export default function Creator({authenticatedApi, user, userId}: CreatorProps) 
                                     }}
                                     onBlur={() => {
                                         if (link.name && link.link) {
-                                            updatePage({...page,
+                                            updatePage({
+                                                ...page,
                                                 links: [...page?.links, link]
                                             });
                                         }

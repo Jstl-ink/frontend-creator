@@ -1,9 +1,9 @@
-import '@mantine/core/styles.css';
 import {useAuth0} from "@auth0/auth0-react";
 import Creator from "./Creator.tsx";
 import {useEffect, useState} from "react";
 import Signup from "./Signup.tsx";
 import {Configuration, CreatorApi, PageApi} from "./sdk";
+import Loader from "./Loader.tsx";
 
 export default function App() {
     const {
@@ -50,7 +50,7 @@ export default function App() {
     }, [creatorApi]);
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <Loader/>;
     }
     if (error) {
         return <div>Oops... {error.message}</div>;
@@ -58,21 +58,13 @@ export default function App() {
 
     if (isAuthenticated) {
         if (!isSignupStatusVerified) {
-            return <div>Loading...</div>;
+            return <Loader/>;
         }
 
         return (
             signup ?
                 <Signup userId={userId} authenticatedApi={creatorApi} setSignup={setSignup}/> :
                 <div className="flex flex-col">
-                    <nav>
-                        <button onClick={() => {
-                            logout({logoutParams: {returnTo: window.location.origin}});
-                            setIsSignupStatusVerified(true)
-                        }}>
-                            Log out
-                        </button>
-                    </nav>
                     <Creator authenticatedApi={creatorApi} user={user} userId={userId}/>
                 </div>
         );

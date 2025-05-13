@@ -1,6 +1,7 @@
-import {User} from "@auth0/auth0-react";
-import {CreatorApi, PageApi} from "./sdk";
+import {CreatorApi} from "./sdk";
 import {useState} from "react";
+import {IconChevronRight} from '@tabler/icons-react';
+
 
 interface SignupProps {
     authenticatedApi: CreatorApi,
@@ -22,27 +23,31 @@ export default function Signup({authenticatedApi, setSignup, userId}: SignupProp
 
     return (
         <>
-            <div className="max-w-md mx-auto p-6 bg-white shadow-xl rounded-2xl">
-                <h1 className="text-2xl font-semibold text-center mb-6">
-                    Sign Up for Your Page
+            <div className="max-w-md mx-auto p-6 shadow-xl rounded-2xl">
+                <h1 className="text-2xl font-semibold mb-6">
+                    Sign Up for your Jstl.ink page
                 </h1>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Choose your handle</label>
-                <input
-                    type="text"
-                    placeholder="e.g. NotAFisch"
-                    value={handle}
-                    onChange={(e) => setHandle(e.target.value)}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-                />
-                <button
-                    onClick={() => signUp()}
-                    className="px-6 py-2 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 disabled:opacity-50 transition transform disabled:hover:scale-100"
-                >
-                    Next
-                </button>
-                {error &&
-                    <p className="block text-sm font-medium text-red-600 mt-1">Handle already exists - please choose
-                        something else</p>}
+                <div className="">
+                    <label className="block text-sm font-medium mb-1">Choose your handle</label>
+                    <div className="flex justify-between gap-2">
+                        <input
+                            type="text"
+                            placeholder="e.g. CaptainObviousness"
+                            value={handle}
+                            onChange={(e) => setHandle(e.target.value)}
+                            className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                        />
+                        <button
+                            onClick={() => signUp()}
+                            className="px-6 py-2 rounded-xl bg-slate-800 text-white font-medium hover:bg-slate-700 disabled:opacity-50 transition transform disabled:hover:scale-100"
+                        >
+                            Next
+                        </button>
+                    </div>
+                    {error &&
+                        <p className="block text-sm font-medium text-red-600 mt-1">Handle already exists - please choose
+                            something else</p>}
+                </div>
             </div>
         </>
     )
