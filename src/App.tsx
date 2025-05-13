@@ -18,20 +18,36 @@ export default function App() {
     } =
         useAuth0();
     const [signup, setSignup] = useState(true);
+    const [isSignupStatusVerified, setIsSignupStatusVerified] = useState(false);
     const [userId, setUserId] = useState("");
-    const [accessToken, setAccessToken] = useState("");
+    const [creatorApi, setCreatorApi] = useState<CreatorApi>();
 
     useEffect(() => {
-        if(isAuthenticated){
+        if (isAuthenticated) {
             getIdTokenClaims().then(value => {
                 setUserId(value.sub.split("|")[1])
                 setSignup(value.signup)
             });
-            getAccessTokenSilently().then(value => setAccessToken(value)).catch(error => console.log("error getting token",error));
+            getAccessTokenSilently().then(value => {
+                setCreatorApi(new CreatorApi(
+                    new Configuration({
+                        headers: {
+                            Authorization: 'Bearer ' + value
+                        },
+                        basePath: 'https://api.jstl.ink.paulus.rocks'
+                    })));
+            }).catch(error => console.log("error getting token", error));
         }
-
-        console.log(userId, accessToken);
     }, [isAuthenticated])
+
+    useEffect(() => {
+        if (creatorApi) {
+            creatorApi.getCreatorPageById({pageId: userId})
+                .then((page) => setSignup(!page?.id))
+                .catch(err => console.log(err))
+                .finally(() => setIsSignupStatusVerified(true));
+        }
+    }, [creatorApi]);
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -41,20 +57,19 @@ export default function App() {
     }
 
     if (isAuthenticated) {
-        const creatorApi = new CreatorApi(
-            new Configuration({
-                headers: {
-                    Authorization: 'Bearer '+accessToken
-                },
-                basePath: 'https://api.jstl.ink.paulus.rocks'
-            }));
+        if (!isSignupStatusVerified) {
+            return <div>Loading...</div>;
+        }
 
         return (
             signup ?
                 <Signup userId={userId} authenticatedApi={creatorApi} setSignup={setSignup}/> :
                 <div className="flex flex-col">
                     <nav>
-                        <button onClick={() => logout({logoutParams: {returnTo: window.location.origin}})}>
+                        <button onClick={() => {
+                            logout({logoutParams: {returnTo: window.location.origin}});
+                            setIsSignupStatusVerified(true)
+                        }}>
                             Log out
                         </button>
                     </nav>
