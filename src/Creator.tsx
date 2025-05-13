@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {Configuration, CreatorApi, Link, Page, PageApi} from "./sdk";
-import {User} from "@auth0/auth0-react";
+import {useAuth0, User} from "@auth0/auth0-react";
 import UnsplashService from "./services/UnsplashService";
 
 interface CreatorProps {
@@ -18,6 +18,8 @@ export default function Creator({authenticatedApi, user, userId}: CreatorProps) 
     const [isImageMenuOpen, setIsImageMenuOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [searchError, setSearchError] = useState("");
+
+    const {logout} = useAuth0();
 
     useEffect(() => {
         authenticatedApi.getCreatorPageById({pageId: userId}).then(value => {
@@ -67,6 +69,10 @@ export default function Creator({authenticatedApi, user, userId}: CreatorProps) 
         updatePage({...page, img: imgUrl});
         setIsImageMenuOpen(false);
     };
+
+    const deletePage = ()=>{
+        authenticatedApi.deletePageByPageId({pageId: userId}).then(()=> logout())
+    }
 
     return (
         <div className="p-4 max-w-4xl mx-auto">
@@ -255,6 +261,10 @@ export default function Creator({authenticatedApi, user, userId}: CreatorProps) 
                         </div>
                     ))}
                 </div>
+            </div>
+            <div className="flex flex-col mt-20">
+                <h2 className="text-lg font-semibold mb-4 text-red-600">DANGER ZONE</h2>
+                <button onClick={()=> deletePage()} className="bg-red-700 rounded-lg py-2 w-[50%]">DELETE page</button>
             </div>
         </div>
     );
