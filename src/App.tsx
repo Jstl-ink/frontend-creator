@@ -1,11 +1,15 @@
 import {useAuth0} from "@auth0/auth0-react";
 import Creator from "./Creator.tsx";
-import {useEffect, useState} from "react";
+import {Dispatch, SetStateAction, useEffect, useState} from "react";
 import Signup from "./Signup.tsx";
 import {Configuration, CreatorApi, PageApi} from "./sdk";
 import Loader from "./Loader.tsx";
 
-export default function App() {
+interface AppProps {
+    setPreviewUrl: Dispatch<SetStateAction<string>>
+}
+
+export default function App({setPreviewUrl}: AppProps) {
     const {
         isLoading,
         isAuthenticated,
@@ -65,7 +69,7 @@ export default function App() {
             signup ?
                 <Signup userId={userId} authenticatedApi={creatorApi} setSignup={setSignup}/> :
                 <div className="flex flex-col">
-                    <Creator authenticatedApi={creatorApi} user={user} userId={userId}/>
+                    <Creator authenticatedApi={creatorApi} user={user} userId={userId} setPreviewUrl={setPreviewUrl}/>
                 </div>
         );
     } else {

@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {Configuration, CreatorApi, Link, Page, PageApi} from "./sdk";
 import {useAuth0, User} from "@auth0/auth0-react";
 import UnsplashService from "./services/UnsplashService";
@@ -6,10 +6,11 @@ import UnsplashService from "./services/UnsplashService";
 interface CreatorProps {
     authenticatedApi: CreatorApi,
     user: User,
-    userId: string
+    userId: string,
+    setPreviewUrl: Dispatch<SetStateAction<string>>
 }
 
-export default function Creator({authenticatedApi, user, userId}: CreatorProps) {
+export default function Creator({authenticatedApi, user, userId, setPreviewUrl}: CreatorProps) {
     const [page, setPage] = useState<Page>();
     const [profileImages, setProfileImages] = useState<any[]>([]);
     const [selectedImage, setSelectedImage] = useState("");
@@ -25,6 +26,7 @@ export default function Creator({authenticatedApi, user, userId}: CreatorProps) 
         authenticatedApi.getCreatorPageById({pageId: userId}).then(value => {
             setPage(value);
             console.log(value)
+            setPreviewUrl(value.handle)
             // const socials = ["instagram", "twitter", "threads", "facebook", "mail"];
         });
     }, [user]);
@@ -70,8 +72,8 @@ export default function Creator({authenticatedApi, user, userId}: CreatorProps) 
         setIsImageMenuOpen(false);
     };
 
-    const deletePage = ()=>{
-        authenticatedApi.deletePageByPageId({pageId: userId}).then(()=> logout())
+    const deletePage = () => {
+        authenticatedApi.deletePageByPageId({pageId: userId}).then(() => logout())
     }
 
     return (
@@ -100,7 +102,8 @@ export default function Creator({authenticatedApi, user, userId}: CreatorProps) 
                     </button>
                 </div>
 
-                <dialog open={isImageMenuOpen} className="translate-x-[10%] backdrop:backdrop-blur-md p-4 rounded-lg max-w-[80%]">
+                <dialog open={isImageMenuOpen}
+                        className="translate-x-[10%] backdrop:backdrop-blur-md p-4 rounded-lg max-w-[80%]">
                     <div className="flex items-center gap-2 mb-4">
                         <input
                             type="text"
@@ -264,7 +267,7 @@ export default function Creator({authenticatedApi, user, userId}: CreatorProps) 
             </div>
             <div className="flex flex-col mt-20">
                 <h2 className="text-lg font-semibold mb-4 text-red-600">DANGER ZONE</h2>
-                <button onClick={()=> deletePage()} className="bg-red-700 rounded-lg py-2 w-[50%]">DELETE page</button>
+                <button onClick={() => deletePage()} className="bg-red-700 rounded-lg py-2 w-[50%]">DELETE page</button>
             </div>
         </div>
     );
