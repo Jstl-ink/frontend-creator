@@ -15,7 +15,7 @@
     "@mantine/core": "^7.17.2",
     "@mantine/hooks": "^7.17.2",
     "@tabler/icons-react": "^3.31.0",
-    "@tailwindcss/vite": "^4.0.14",
+    "@tailwindcss/vite": "^4.1.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwindcss": "^4.0.14"

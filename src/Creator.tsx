@@ -1,7 +1,9 @@
-import {Dispatch, SetStateAction, useEffect, useState} from "react";
+import {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
 import {Configuration, CreatorApi, Link, Page, PageApi} from "./sdk";
 import {useAuth0, User} from "@auth0/auth0-react";
 import UnsplashService from "./services/UnsplashService";
+import {useDisclosure} from '@mantine/hooks';
+import {Modal, Button} from '@mantine/core';
 
 interface CreatorProps {
     authenticatedApi: CreatorApi,
@@ -16,9 +18,9 @@ export default function Creator({authenticatedApi, user, userId, setPreviewUrl}:
     const [selectedImage, setSelectedImage] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [customLinks, setCustomLinks] = useState<Link[]>([{} as Link]);
-    const [isImageMenuOpen, setIsImageMenuOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [searchError, setSearchError] = useState("");
+    const [opened, {open, close}] = useDisclosure(false);
 
     const {logout} = useAuth0();
 
@@ -32,10 +34,10 @@ export default function Creator({authenticatedApi, user, userId, setPreviewUrl}:
     }, [user]);
 
     useEffect(() => {
-        if (isImageMenuOpen) {
+        if (opened) {
             loadImages();
         }
-    }, [isImageMenuOpen]);
+    }, [opened]);
 
     const loadImages = async (searchQuery = "") => {
         setIsLoading(true);
@@ -69,7 +71,7 @@ export default function Creator({authenticatedApi, user, userId, setPreviewUrl}:
     const handleImageSelect = (imgUrl: string) => {
         setSelectedImage(imgUrl);
         updatePage({...page, img: imgUrl});
-        setIsImageMenuOpen(false);
+        close() // image select modal
     };
 
     const deletePage = () => {
@@ -82,44 +84,63 @@ export default function Creator({authenticatedApi, user, userId, setPreviewUrl}:
 
             {/* Profile Image Selection */}
             <div className="mb-8">
-                <div className="flex items-center gap-4 mb-4">
-                    {page?.img ? (
+                <div className="flex items-center gap-4 mb-4 relative">
+                    {page?.img ?
                         <img
                             src={page.img}
                             alt="Profile"
-                            className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
-                        />
-                    ) : (
-                        <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center">
+                            className="mask-b-from-70% w-full h-60 object-top object-cover rounded-t-2xl"
+                        /> :
+                        <div className="mask-b-from-70% w-full h-60 bg-gray-200 flex items-center justify-center">
                             <span className="text-gray-400">No photo</span>
                         </div>
-                    )}
+                    }
                     <button
-                        onClick={() => setIsImageMenuOpen(!isImageMenuOpen)}
-                        className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg transition"
+                        onClick={open} // open image select modal
+                        className="absolute right-2 top-2 bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl transition"
                     >
                         {page?.img ? "Change Photo" : "Select Photo"}
                     </button>
                 </div>
 
-                <dialog open={isImageMenuOpen}
-                        className="translate-x-[10%] backdrop:backdrop-blur-md p-4 rounded-lg max-w-[80%]">
-                    <div className="flex items-center gap-2 mb-4">
+                <Modal
+                    opened={opened}
+                    onClose={close}
+                    centered
+                    size="80%"
+                    overlayProps={{
+                        backgroundOpacity: 0.55,
+                        blur: 3,
+                    }}
+                    classNames={{content: "!bg-[#141414] !rounded-xl", header: "!bg-[#141414] !text-white", close: "hover:!bg-transparent"}}
+                >
+                    {/* Modal content */}
+
+                    <div className="flex flex-col md:flex-row items-center gap-2 mb-4 mt-2">
                         <input
                             type="text"
-                            className="border p-2 rounded-lg flex-grow"
+                            className="border border-white text-white p-2 rounded-lg flex-grow w-full"
                             placeholder="Search Unsplash photos..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && loadImages(searchTerm)}
                         />
+                        <div className="flex gap-2 justify-end md:justify-normal md:w-auto md:min-w-58 w-full">
                         <button
                             onClick={() => loadImages(searchTerm)}
-                            className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                            className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg"
                             disabled={isLoading}
                         >
                             {isLoading ? "Searching..." : "Search"}
                         </button>
+                        <button
+                            onClick={() => handleImageSelect("")}
+                            className="bg-slate-800 hover:bg-slate-700 disabled:bg-gray-900 disabled:text-gray-500 text-white px-4 py-2 rounded-lg"
+                            disabled={selectedImage === ""}
+                        >
+                            Remove Image
+                        </button>
+                        </div>
                     </div>
 
                     {searchError && (
@@ -135,7 +156,7 @@ export default function Creator({authenticatedApi, user, userId, setPreviewUrl}:
                         <>
                             {profileImages.length > 0 ? (
                                 <div
-                                    className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 max-h-96 overflow-y-auto p-2">
+                                    className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 max-h-96 overflow-y-auto">
                                     {profileImages.map((img) => (
                                         <div
                                             key={img.id}
@@ -161,7 +182,8 @@ export default function Creator({authenticatedApi, user, userId, setPreviewUrl}:
                             )}
                         </>
                     )}
-                </dialog>
+                </Modal>
+
             </div>
 
             {/* Profile Information */}
