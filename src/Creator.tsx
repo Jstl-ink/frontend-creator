@@ -91,7 +91,7 @@ export default function Creator({authenticatedApi, user, userId, setPreviewUrl}:
                             alt="Profile"
                             className="mask-b-from-70% w-full h-60 object-top object-cover rounded-t-2xl"
                         /> :
-                        <div className="mask-b-from-70% w-full h-60 bg-gray-200 flex items-center justify-center">
+                        <div className="mask-b-from-70% w-full h-60 bg-gray-200 flex items-center justify-center rounded-t-2xl">
                             <span className="text-gray-400">No photo</span>
                         </div>
                     }
