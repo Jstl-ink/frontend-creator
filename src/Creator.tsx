@@ -1,9 +1,10 @@
 import {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
-import {Configuration, CreatorApi, Link, Page, PageApi} from "./sdk";
+import {CreatorApi, Link, Page} from "./sdk";
 import {useAuth0, User} from "@auth0/auth0-react";
 import UnsplashService from "./services/UnsplashService";
 import {useDisclosure} from '@mantine/hooks';
-import {Modal, Button} from '@mantine/core';
+import {Modal, Tooltip} from '@mantine/core';
+import {IconInfoCircle} from "@tabler/icons-react";
 
 interface CreatorProps {
     authenticatedApi: CreatorApi,
@@ -11,6 +12,46 @@ interface CreatorProps {
     userId: string,
     setPreviewUrl: Dispatch<SetStateAction<string>>
 }
+
+const allowedSocialLinks = [
+    {
+        name: "instagram",
+        link: "https://instagram.com/",
+        placeholder: "@"
+    }, {
+        name: "twitter",
+        link: "https://x.com/",
+        placeholder: "@"
+    }, {
+        name: "threads",
+        link: "https://www.threads.com/@",
+        placeholder: "@"
+    }, {
+        name: "facebook",
+        link: "https://www.facebook.com/",
+        placeholder: "@"
+    }, {
+        name: "spotify",
+        link: "https://open.spotify.com/user/",
+        placeholder: "@"
+    }, {
+        name: "youtube",
+        link: "https://www.youtube.com/@",
+        placeholder: "@"
+    }, {
+        name: "reddit",
+        link: "https://www.reddit.com/user/",
+        placeholder: "@"
+    }, {
+        name: "github",
+        link: "https://github.com/",
+        placeholder: "@"
+    }, {
+        name: "mail",
+        link: "mailto:",
+        placeholder: "example@mail.com"
+    }
+]
 
 export default function Creator({authenticatedApi, user, userId, setPreviewUrl}: CreatorProps) {
     const [page, setPage] = useState<Page>();
@@ -68,6 +109,21 @@ export default function Creator({authenticatedApi, user, userId, setPreviewUrl}:
         }).then(r => console.log(r)).catch(e => console.log(e));
     };
 
+    const updateSocialLinks = (socialLink, val) => {
+        const username = extractLastSegment(val);
+        const filteredLinks = page.socialLinks.filter(link => link.name !== socialLink.name);
+
+        if (!username) return filteredLinks;
+
+        return [
+            ...filteredLinks,
+            {
+                ...socialLink,
+                link: socialLink.link + username
+            }
+        ];
+    }
+
     const handleImageSelect = (imgUrl: string) => {
         setSelectedImage(imgUrl);
         updatePage({...page, img: imgUrl});
@@ -91,7 +147,8 @@ export default function Creator({authenticatedApi, user, userId, setPreviewUrl}:
                             alt="Profile"
                             className="mask-b-from-70% w-full h-60 object-top object-cover rounded-t-2xl"
                         /> :
-                        <div className="mask-b-from-70% w-full h-60 bg-gray-200 flex items-center justify-center rounded-t-2xl">
+                        <div
+                            className="mask-b-from-70% w-full h-60 bg-gray-200 flex items-center justify-center rounded-t-2xl">
                             <span className="text-gray-400">No photo</span>
                         </div>
                     }
@@ -112,7 +169,11 @@ export default function Creator({authenticatedApi, user, userId, setPreviewUrl}:
                         backgroundOpacity: 0.55,
                         blur: 3,
                     }}
-                    classNames={{content: "!bg-[#141414] !rounded-xl", header: "!bg-[#141414] !text-white", close: "hover:!bg-transparent"}}
+                    classNames={{
+                        content: "!bg-[#141414] !rounded-xl",
+                        header: "!bg-[#141414] !text-white",
+                        close: "hover:!bg-transparent"
+                    }}
                 >
                     {/* Modal content */}
 
@@ -126,20 +187,20 @@ export default function Creator({authenticatedApi, user, userId, setPreviewUrl}:
                             onKeyDown={(e) => e.key === "Enter" && loadImages(searchTerm)}
                         />
                         <div className="flex gap-2 justify-end md:justify-normal md:w-auto md:min-w-58 w-full">
-                        <button
-                            onClick={() => loadImages(searchTerm)}
-                            className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg"
-                            disabled={isLoading}
-                        >
-                            {isLoading ? "Searching..." : "Search"}
-                        </button>
-                        <button
-                            onClick={() => handleImageSelect("")}
-                            className="bg-slate-800 hover:bg-slate-700 disabled:bg-gray-900 disabled:text-gray-500 text-white px-4 py-2 rounded-lg"
-                            disabled={selectedImage === ""}
-                        >
-                            Remove Image
-                        </button>
+                            <button
+                                onClick={() => loadImages(searchTerm)}
+                                className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg"
+                                disabled={isLoading}
+                            >
+                                {isLoading ? "Searching..." : "Search"}
+                            </button>
+                            <button
+                                onClick={() => handleImageSelect("")}
+                                className="bg-slate-800 hover:bg-slate-700 disabled:bg-gray-900 disabled:text-gray-500 text-white px-4 py-2 rounded-lg"
+                                disabled={selectedImage === ""}
+                            >
+                                Remove Image
+                            </button>
                         </div>
                     </div>
 
@@ -209,25 +270,29 @@ export default function Creator({authenticatedApi, user, userId, setPreviewUrl}:
 
             {/* Social Links Section */}
             <div className="mt-8">
-                <h2 className="text-lg font-semibold mb-4">Social Links</h2>
+                <h2 className="text-lg font-semibold mb-4 flex gap-1" title={"Social links are shown with their icons right after the banner image"}>Social Links
+                    <IconInfoCircle size={14}/>
+                </h2>
                 <div className="space-y-4">
-                    {["instagram", "twitter", "threads", "facebook"].map((name) => {
-                        const link = page?.socialLinks?.find(link => link.name === name) || {name, link: ""};
+                    {allowedSocialLinks.map((socialLink) => {
+                        const link = page?.socialLinks?.find(link => link.name === socialLink.name) || {
+                            name: socialLink.name,
+                            link: ""
+                        };
                         return (
-                            <div key={name}>
+                            <div key={socialLink.name}>
                                 <label className="block text-sm font-medium capitalize mb-1">
-                                    {name}
+                                    {socialLink.name}
                                 </label>
                                 <input
+                                    title={socialLink.placeholder === '@' ? "only username is needed": ""}
                                     className="w-full border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"
-                                    defaultValue={link.link}
+                                    defaultValue={extractLastSegment(link.link)}
+                                    placeholder={socialLink.placeholder}
                                     onBlur={e => updatePage(
                                         {
                                             ...page,
-                                            socialLinks: [...page?.socialLinks, {
-                                                name,
-                                                link: `https://${name}.com/${e.target.value}`
-                                            }]
+                                            socialLinks: updateSocialLinks(socialLink, e.target.value)
                                         }
                                     )}
                                 />
@@ -293,4 +358,16 @@ export default function Creator({authenticatedApi, user, userId, setPreviewUrl}:
             </div>
         </div>
     );
+}
+
+const extractLastSegment = (url: string) => {
+    if(url.includes("@")){
+        const parts = url.split("/")
+        return parts[parts.length - 1];
+    } else if(url.includes("/")){
+        const parts = url.split("/")
+        return parts[parts.length - 1];
+    } else {
+        return url;
+    }
 }
